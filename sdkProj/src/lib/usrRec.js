@@ -1,8 +1,12 @@
-importScripts("http://pv.sohu.com/cityjson?ie=utf-8");
-alert("Hello world!");
+const FingerprintJS = require("@fingerprintjs/fingerprintjs");
+
 module.exports = {
   getIp: function() {
-    console.log(returnCitySN["cip"] + "," + returnCitySN["cname"]);
-    document.write(returnCitySN["cip"] + "," + returnCitySN["cname"]);
+    //fingerprin
+    var agent = FingerprintJS.load({});
+    var identifier = agent.get({ debug: true });
+    var visitorId = identifier.visitorId;
+    var comp = identifier.components;
+    
   }
 };
