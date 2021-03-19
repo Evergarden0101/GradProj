@@ -12,4 +12,10 @@ public class Hello {
     public String handle() {
         return "Hello World!";
     }
+
+    @RequestMapping("/a")
+
+    public String a() {
+        return "a";
+    }
 }
