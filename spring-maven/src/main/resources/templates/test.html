@@ -3,14 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>test</title>
-<!--    <script src="/js/alert.js"></script>-->
+    <!--    <script src="/js/alert.js"></script>-->
+    <!--    <script src="clientjs/dist/client.min.js"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ClientJS/0.1.11/client.min.js"></script>
 
 </head>
 <body>
 <h1>test</h1>
 <button onclick="getIp()">get IP</button>
 <!--<button onclick="Hi()">Hi!</button>-->
-</body>
 
+</body>
+<script language=javascript>
+    // Create a new ClientJS object
+    var client = new ClientJS();
+
+    // Get the client's fingerprint id
+    const windowClient = new window.ClientJS();
+    const fingerprint = windowClient.getFingerprint();
+    // Print the 32bit hash id to the console
+    console.log(fingerprint);
+    document.body.insertBefore(fingerprint.toString(), document.body.lastChild);
+</script>
 </html>
+
 <script src="/js/usrRec.js"></script>
+
