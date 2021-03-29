@@ -57,12 +57,67 @@
 </template>
 
 <script>
+import ClientJS from "clientjs";
 export default {
   name: "HelloWorld",
   data() {
     return {
       msg: "Welcome to Your Vue.js App"
     };
+  },
+  beforeMount() {
+    // var client = new ClientJS();
+    const client = new window.ClientJS();
+    const fingerprint = client.getFingerprint();
+    console.log('fingerprint: '+fingerprint);
+    var softwareVersion = client.getSoftwareVersion(); // Get ClientJS Software Version
+    console.log('softwareVersion: '+softwareVersion);
+    var userAgent = client.getUserAgent(); // Get User Agent String
+    console.log('userAgent: '+userAgent);
+    var isChrome = client.isChrome(); // Check For Chrome
+    console.log('isChrome: '+isChrome);
+    var engine = client.getEngine(); // Get Engine
+    console.log('engine: '+engine);
+    var device = client.getDevice(); // Get Device
+    console.log('device: '+device);
+    var deviceType = client.getDeviceType(); // Get Device Type
+    console.log('deviceType: '+deviceType);
+    var deviceVendor = client.getDeviceVendor(); // Get Device Vendor
+    console.log('deviceVendor: '+deviceVendor);
+    var CPU = client.getCPU(); // Get CPU Architecture
+    console.log('CPU: '+CPU);
+    var screenPrint = client.getScreenPrint(); // Get Screen Print
+    console.log('screenPrint: '+screenPrint);
+    var colorDepth = client.getColorDepth(); // Get Color Depth
+    console.log('colorDepth: '+colorDepth);
+    var currentResolution = client.getCurrentResolution(); // Get Current Resolution
+    console.log('currentResolution: '+currentResolution);
+    var availableResolution = client.getAvailableResolution(); // Get Available Resolution
+    console.log('availableResolution: '+availableResolution);
+    var plugins = client.getPlugins(); // Get Plugins
+    console.log('plugins: '+plugins);
+    if (client.isMimeTypes()) {
+      var mimeTypes = client.getMimeTypes(); // Get Mime Types
+      console.log('mimeTypes: '+mimeTypes);
+    }
+    var fonts = client.getFonts(); // Get Fonts
+    console.log('fonts: '+fonts);
+    var isLocalStorage = client.isLocalStorage(); // Check For Local Storage
+    console.log('isLocalStorage: '+isLocalStorage);
+    var isSessionStorage = client.isSessionStorage(); // Check For Session Storage
+    console.log('isSessionStorage: '+isSessionStorage);
+    var isCookie = client.isCookie(); // Check For Cookies
+    console.log('isCookie: '+isCookie);
+    var timeZone = client.getTimeZone(); // Get Time Zone
+    console.log('timeZone: '+timeZone);
+    var language = client.getLanguage(); // Get User Language
+    console.log('language: '+language);
+    var systemLanguage = client.SystemLanguage(); // Get System Language
+    console.log('systemLanguage: '+systemLanguage);
+    if (client.isCanvas()) {
+      var canvasPrint = client.getCanvasPrint(); // Get Canvas Print
+      console.log('canvasPrint: '+canvasPrint);
+    }
   }
 };
 </script>
