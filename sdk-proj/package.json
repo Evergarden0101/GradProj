@@ -11,7 +11,10 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^3.0.6",
     "clientjs": "^0.1.11",
+    "os": "^0.1.1",
+    "request-ip": "2.1.3",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"
   },

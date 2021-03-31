@@ -58,6 +58,9 @@
 
 <script>
 import ClientJS from "clientjs";
+// import FingerprintJS from "@fingerprintjs/fingerprintjs";
+import requestIp from "request-ip";
+// import express from 'express';
 export default {
   name: "HelloWorld",
   data() {
@@ -66,57 +69,63 @@ export default {
     };
   },
   beforeMount() {
+    // var ip = new window.requestIp.getClientIp(req);
+    // console.log(ip);
+
+    // FingerprintJS.load({ token: "your-browser-token" })
+    //   .then(fp => fp.get())
+    //   .then(result => console.log(result.visitorId));
     // var client = new ClientJS();
     const client = new window.ClientJS();
     const fingerprint = client.getFingerprint();
-    console.log('fingerprint: '+fingerprint);
+    console.log("fingerprint: " + fingerprint);
     var softwareVersion = client.getSoftwareVersion(); // Get ClientJS Software Version
-    console.log('softwareVersion: '+softwareVersion);
+    console.log("softwareVersion: " + softwareVersion);
     var userAgent = client.getUserAgent(); // Get User Agent String
-    console.log('userAgent: '+userAgent);
+    console.log("userAgent: " + userAgent);
     var isChrome = client.isChrome(); // Check For Chrome
-    console.log('isChrome: '+isChrome);
+    console.log("isChrome: " + isChrome);
     var engine = client.getEngine(); // Get Engine
-    console.log('engine: '+engine);
+    console.log("engine: " + engine);
     var device = client.getDevice(); // Get Device
-    console.log('device: '+device);
+    console.log("device: " + device);
     var deviceType = client.getDeviceType(); // Get Device Type
-    console.log('deviceType: '+deviceType);
+    console.log("deviceType: " + deviceType);
     var deviceVendor = client.getDeviceVendor(); // Get Device Vendor
-    console.log('deviceVendor: '+deviceVendor);
+    console.log("deviceVendor: " + deviceVendor);
     var CPU = client.getCPU(); // Get CPU Architecture
-    console.log('CPU: '+CPU);
+    console.log("CPU: " + CPU);
     var screenPrint = client.getScreenPrint(); // Get Screen Print
-    console.log('screenPrint: '+screenPrint);
+    console.log("screenPrint: " + screenPrint);
     var colorDepth = client.getColorDepth(); // Get Color Depth
-    console.log('colorDepth: '+colorDepth);
+    console.log("colorDepth: " + colorDepth);
     var currentResolution = client.getCurrentResolution(); // Get Current Resolution
-    console.log('currentResolution: '+currentResolution);
+    console.log("currentResolution: " + currentResolution);
     var availableResolution = client.getAvailableResolution(); // Get Available Resolution
-    console.log('availableResolution: '+availableResolution);
+    console.log("availableResolution: " + availableResolution);
     var plugins = client.getPlugins(); // Get Plugins
-    console.log('plugins: '+plugins);
+    console.log("plugins: " + plugins);
     if (client.isMimeTypes()) {
       var mimeTypes = client.getMimeTypes(); // Get Mime Types
-      console.log('mimeTypes: '+mimeTypes);
+      console.log("mimeTypes: " + mimeTypes);
     }
     var fonts = client.getFonts(); // Get Fonts
-    console.log('fonts: '+fonts);
+    console.log("fonts: " + fonts);
     var isLocalStorage = client.isLocalStorage(); // Check For Local Storage
-    console.log('isLocalStorage: '+isLocalStorage);
+    console.log("isLocalStorage: " + isLocalStorage);
     var isSessionStorage = client.isSessionStorage(); // Check For Session Storage
-    console.log('isSessionStorage: '+isSessionStorage);
+    console.log("isSessionStorage: " + isSessionStorage);
     var isCookie = client.isCookie(); // Check For Cookies
-    console.log('isCookie: '+isCookie);
+    console.log("isCookie: " + isCookie);
     var timeZone = client.getTimeZone(); // Get Time Zone
-    console.log('timeZone: '+timeZone);
+    console.log("timeZone: " + timeZone);
     var language = client.getLanguage(); // Get User Language
-    console.log('language: '+language);
+    console.log("language: " + language);
     var systemLanguage = client.SystemLanguage(); // Get System Language
-    console.log('systemLanguage: '+systemLanguage);
+    console.log("systemLanguage: " + systemLanguage);
     if (client.isCanvas()) {
       var canvasPrint = client.getCanvasPrint(); // Get Canvas Print
-      console.log('canvasPrint: '+canvasPrint);
+      console.log("canvasPrint: " + canvasPrint);
     }
   }
 };
