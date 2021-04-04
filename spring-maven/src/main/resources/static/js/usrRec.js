@@ -31,7 +31,7 @@ async function getIp() {
 
     // var client = new ClientJS();
     var client = new window.ClientJS();
-    var fingerprint = client.getFingerprint();
+    var fingerprint = client.getFingerprint();//1883166535
     var userAgent = client.getUserAgent(); // Get User Agent String
     var cpu = client.getCPU();
     var screenPrint = client.getScreenPrint();
@@ -46,65 +46,140 @@ async function getIp() {
     //indexedDB - dexie
     var db = new Dexie('user');
     db.version(1).stores({
-        userfp: '++, *ip, *fingerprint',
-        fp: 'fingerprint, userAgent, cpu, screenPrint, colorDepth, availableResolution, mimeTypes, fonts, timeZone, language, core'
+        userfps: '++id, *ip, *fp',
+        fingerprints: 'fp, userAgent, cpu, screenPrint, colorDepth, availableResolution, mimeTypes, fonts, timeZone, language, core'
     });
     // db.open();
-    var findIp = await db.userfp
+
+    //test area
+    db.userfps.bulkAdd([
+        {ip: ["127.0.0.0"], fp: [278497595]}, //278497595
+        {ip: [ip], fp: [188316653]},
+    ]).then(function () {
+        // return db.userfp.get('1');
+    });
+
+    var findIp = await db.userfps
         .where({ip: ip}).distinct().toArray()
         .catch(function (error) {
             console.log("error: " + error);
             // db.close()
         });
-    var findFp = await db.userfp
-        .where({fingerprint: fingerprint}).distinct().toArray()
+    var findFp = await db.userfps
+        .where({fp: fingerprint}).distinct().toArray()
         .catch(function (error) {
             console.log("error: " + error);
             // db.close()
         });
+    // console.log("ip:" + findIp.length + " fp:" + findFp.length);
     if (findIp.length > 0 && findFp.length == 0) {
-        findIp[0].modify(user => {
-            user.fingerprint.add(fingerprint);
+        await db.userfps.where("ip").equals(ip).distinct().modify(user => {
+            user.fp.push(fingerprint);
         });
+        console.log("add fp to ip");
     } else if (findIp.length == 0 && findFp.length > 0) {
-
+        await db.userfps.where("fp").equals(fingerprint).distinct().modify(user => {
+            user.ip.push(ip);
+        });
+        console.log("add ip to fp");
     } else if (findIp.length == 0 && findFp.length == 0) {
-        db.userfp.put({
-            ip: ip, fingerprint: fingerprint
-        })
+        await db.userfps.add({
+            ip: [ip], fp: [fingerprint]
+        });
+        console.log("add user");
     } else if (findIp.length > 0 && findFp.length > 0) {
-
+        fpp = await db.userfps.get({fp: fingerprint});
+        await db.userfps.where("ip").equals(ip).distinct().modify(user => {
+            user.fp.push(fingerprint);
+            user.ip = user.ip.concat(fpp.ip);
+        });
+        await db.userfps.delete(fpp.id);
+        console.log("combine user");
     }
+    ;
 
-    db.userfp.bulkPut([
-        {uid: "1", ip: ip, fingerprint: fingerprint},
-        {uid: "2", ip: "127.0.0.1", fingerprint: fingerprint},
-    ]).then(function () {
-        return db.userfp.get('1');
-    });
+    findFp = await db.fingerprints
+        .where({fp: fingerprint}).distinct().toArray()
+        .catch(function (error) {
+            console.log("error: " + error);
+            // db.close()
+        });
 
-    console.log(findIp.length);
-    db.fp.put(
-        {
-            fingerprint,
-            userAgent,
-            cpu,
-            screenPrint,
-            colorDepth,
-            availableResolution,
-            mimeTypes,
-            fonts,
-            timeZone,
-            language,
-            core,
-            screenOrientation,
-            screenAngle,
-            screenHeight,
-            screenWidth
-        },
-    ).then(function () {
-        return;
-    });
+    if (findFp.length == 0) {
+        await db.fingerprints.add(
+            {
+                fingerprint,
+                userAgent,
+                cpu,
+                screenPrint,
+                colorDepth,
+                availableResolution,
+                mimeTypes,
+                fonts,
+                timeZone,
+                language,
+                core,
+                screenOrientation,
+                screenAngle,
+                screenHeight,
+                screenWidth
+            },
+        );
+    }
+    ;
+
+    //去除重复ip与fp
+    db = rmDuplicates(db);
+
+    for (var i = 0; i < db.userfps.count() - 1; i++) {
+        var user = db.userfps.toArray()[i];
+        for (var j = i + 1; j < db.userfps.count(); j++) {
+            var check = db.userfps.toArray()[j];
+            var flag = false;
+            for (var k = 0; k < check.ip.length; k++) {
+                if (user.ip.some(function (uip) {
+                        return uip == check.ip[k];
+                    })
+                    == true) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (!flag) {
+                for (var k = 0; k < check.fp.length; k++) {
+                    if (user.fp.some(function (ufp) {
+                            return ufp == check.fp[k];
+                        })
+                        == true) {
+                        flag = true;
+                        break;
+                    }
+                }
+            }
+            if (flag == true) {
+                await db.userfps.where("id").equals(user.id).modify(newUser => {
+                    newUser.fp.push(fingerprint);
+                    newUser.fp = newUser.fp.concat(check.fp);
+                    newUser.ip = newUser.ip.concat(check.ip);
+                });
+                await db.userfps.delete(check.id);
+            }
+        }
+    }
+    ;
+    db = rmDuplicates(db);
 
     // db.close();
+};
+
+async function rmDuplicates(db) {
+    await db.userfps.each(user => {
+        user.ip = user.ip.filter(function (item, index, self) {
+            return self.indexOf(item) == index;
+        });
+        user.fingerprint = user.fingerprint.filter(function (item, index, self) {
+            return self.indexOf(item) == index;
+        });
+    });
+    return db;
 }
