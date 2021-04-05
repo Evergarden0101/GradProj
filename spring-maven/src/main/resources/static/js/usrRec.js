@@ -51,14 +51,6 @@ async function getIp() {
     });
     // db.open();
 
-    //test area
-    db.userfps.bulkAdd([
-        {ip: ["127.0.0.0"], fp: [278497595]}, //278497595
-        {ip: [ip], fp: [188316653]},
-    ]).then(function () {
-        // return db.userfp.get('1');
-    });
-
     var findIp = await db.userfps
         .where({ip: ip}).distinct().toArray()
         .catch(function (error) {
@@ -87,7 +79,7 @@ async function getIp() {
             ip: [ip], fp: [fingerprint]
         });
         console.log("add user");
-    } else if (findIp.length > 0 && findFp.length > 0) {
+    } else if (findIp.length > 0 && findFp.length > 0 && findIp[0].id != findFp[0].id) {
         fpp = await db.userfps.get({fp: fingerprint});
         await db.userfps.where("ip").equals(ip).distinct().modify(user => {
             user.fp.push(fingerprint);
@@ -106,80 +98,164 @@ async function getIp() {
         });
 
     if (findFp.length == 0) {
-        await db.fingerprints.add(
+        db.fingerprints.add(
             {
-                fingerprint,
-                userAgent,
-                cpu,
-                screenPrint,
-                colorDepth,
-                availableResolution,
-                mimeTypes,
-                fonts,
-                timeZone,
-                language,
-                core,
+                fp: fingerprint,
+                userAgent: userAgent,
+                cpu: cpu,
+                screenPrint: screenPrint,
+                colorDepth: colorDepth,
+                availableResolution: availableResolution,
+                mimeTypes: mimeTypes,
+                fonts: fonts,
+                timeZone: timeZone,
+                language: language,
+                core: core,
                 screenOrientation,
                 screenAngle,
                 screenHeight,
                 screenWidth
             },
-        );
+        )
+        ;
     }
     ;
 
-    //去除重复ip与fp
-    db = rmDuplicates(db);
+    //test area
+    await db.userfps.bulkAdd([
+        {ip: ["127.0.0.0"], fp: [278497595]}, //278497595
+        {ip: ["127.0.0.1", "127.0.0.0"], fp: [188316653]},
+    ]).then(function () {
+        // return db.userfp.get('1');
+    });
 
-    for (var i = 0; i < db.userfps.count() - 1; i++) {
-        var user = db.userfps.toArray()[i];
-        for (var j = i + 1; j < db.userfps.count(); j++) {
-            var check = db.userfps.toArray()[j];
+    //去除重复ip与fp
+    await db.userfps.toCollection().modify(user => {
+        var arr = [];
+        for (i = 0; i < user.ip.length; i++) {
+            for (j = 0; j < arr.length; j++) {
+                if (arr[j] == user.ip[i]) {
+                    break;
+                }
+            }
+            if (j == arr.length) {
+                arr[arr.length] = user.ip[i];
+            }
+        }
+        ;
+        user.ip=arr;
+    });
+    await db.userfps.toCollection().modify(user => {
+        var arr = [];
+        for (i = 0; i < user.fp.length; i++) {
+            for (j = 0; j < arr.length; j++) {
+                if (arr[j] == user.fp[i]) {
+                    break;
+                }
+            }
+            if (j == arr.length) {
+                arr[arr.length] = user.fp[i];
+            }
+        }
+        ;
+        user.fp = arr;
+    });
+    var count = await db.userfps.count();
+    for (var i = 0; i < count - 1; i++) {
+        var user = await db.userfps.toArray();
+        for (var j = i + 1; j < count; j++) {
+            var check = await db.userfps.toArray();
             var flag = false;
-            for (var k = 0; k < check.ip.length; k++) {
-                if (user.ip.some(function (uip) {
-                        return uip == check.ip[k];
+            for (var k = 0; k < check[j].ip.length; k++) {
+                console.log(check[j].ip[k]);
+                if (user[i].ip.some(function (uip) {
+                        return uip == check[j].ip[k];
                     })
                     == true) {
                     flag = true;
+                    console.log(flag);
                     break;
                 }
             }
             if (!flag) {
-                for (var k = 0; k < check.fp.length; k++) {
-                    if (user.fp.some(function (ufp) {
-                            return ufp == check.fp[k];
+                for (var k = 0; k < check[j].fp.length; k++) {
+                    console.log(check[j].fp[k]);
+                    if (user[i].fp.some(function (ufp) {
+                            return ufp == check[j].fp[k];
                         })
                         == true) {
                         flag = true;
+                        console.log(flag);
                         break;
                     }
                 }
             }
             if (flag == true) {
-                await db.userfps.where("id").equals(user.id).modify(newUser => {
-                    newUser.fp.push(fingerprint);
-                    newUser.fp = newUser.fp.concat(check.fp);
-                    newUser.ip = newUser.ip.concat(check.ip);
+                await db.userfps.where("id").equals(user[i].id).modify(newUser => {
+                    newUser.fp = newUser.fp.concat(check[j].fp);
+
+                    newUser.ip = newUser.ip.concat(check[j].ip);
                 });
-                await db.userfps.delete(check.id);
+                await db.userfps.delete(check[j].id);
             }
         }
     }
     ;
-    db = rmDuplicates(db);
+    await db.userfps.toCollection().modify(user => {
+        var arr = [];
+        for (i = 0; i < user.ip.length; i++) {
+            for (j = 0; j < arr.length; j++) {
+                if (arr[j] == user.ip[i]) {
+                    break;
+                }
+            }
+            if (j == arr.length) {
+                arr[arr.length] = user.ip[i];
+            }
+        }
+        ;
+        user.ip=arr;
+    });
+    await db.userfps.toCollection().modify(user => {
+        var arr = [];
+        for (i = 0; i < user.fp.length; i++) {
+            for (j = 0; j < arr.length; j++) {
+                if (arr[j] == user.fp[i]) {
+                    break;
+                }
+            }
+            if (j == arr.length) {
+                arr[arr.length] = user.fp[i];
+            }
+        }
+        ;
+        user.fp = arr;
+    });
 
     // db.close();
 };
 
-async function rmDuplicates(db) {
-    await db.userfps.each(user => {
-        user.ip = user.ip.filter(function (item, index, self) {
-            return self.indexOf(item) == index;
-        });
-        user.fingerprint = user.fingerprint.filter(function (item, index, self) {
-            return self.indexOf(item) == index;
-        });
-    });
-    return db;
+async function rmDuplicates(arr) {
+    // await db.userfps.each(user => {
+    //     user.ip = user.ip.filter(function (item, index, self) {
+    //         return self.indexOf(item) == index;
+    //     });
+    //     user.fingerprint = user.fingerprint.filter(function (item, index, self) {
+    //         return self.indexOf(item) == index;
+    //     });
+    // });
+    console.log(arr)
+    var resultArr = [];
+    for (i = 0; i < arr.length; i++) {
+        for (j = 0; j < resultArr.length; j++) {
+            if (resultArr[j] == arr[i]) {
+                break;
+            }
+        }
+        if (j == resultArr.length) {
+            resultArr[resultArr.length] = arr[i];
+        }
+    }
+    ;
+    return resultArr;
 }

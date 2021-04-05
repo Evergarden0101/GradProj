@@ -1,5 +1,7 @@
 var ClientJS=require("clientjs");
 var requestIp = require('request-ip');
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://localhost:27017/runoob";
 
 module.exports = {
   getIp: function() {

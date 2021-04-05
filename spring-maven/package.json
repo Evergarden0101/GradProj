@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "clientjs": "^0.1.11",
-    "dexie-relationships": "^1.2.11"
+    "dexie-relationships": "^1.2.11",
+    "mongodb": "^3.6.5"
   }
 }
