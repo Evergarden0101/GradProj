@@ -123,7 +123,7 @@ async function getIp() {
 
     //test area
     await db.userfps.bulkAdd([
-        {ip: ["127.0.0.0"], fp: [278497595]}, //278497595
+        // {ip: ["127.0.0.0"], fp: [278497595]}, //278497595
         {ip: ["127.0.0.1", "127.0.0.0"], fp: [188316653]},
     ]).then(function () {
         // return db.userfp.get('1');
@@ -143,7 +143,7 @@ async function getIp() {
             }
         }
         ;
-        user.ip=arr;
+        user.ip = arr;
     });
     await db.userfps.toCollection().modify(user => {
         var arr = [];
@@ -193,14 +193,15 @@ async function getIp() {
             if (flag == true) {
                 await db.userfps.where("id").equals(user[i].id).modify(newUser => {
                     newUser.fp = newUser.fp.concat(check[j].fp);
-
                     newUser.ip = newUser.ip.concat(check[j].ip);
                 });
-                await db.userfps.delete(check[j].id);
+                await db.userfps.where("id").equals(check[j].id).delete();
+                console.log(await db.userfps.toArray());
             }
         }
     }
     ;
+
     await db.userfps.toCollection().modify(user => {
         var arr = [];
         for (i = 0; i < user.ip.length; i++) {
@@ -214,7 +215,7 @@ async function getIp() {
             }
         }
         ;
-        user.ip=arr;
+        user.ip = arr;
     });
     await db.userfps.toCollection().modify(user => {
         var arr = [];
@@ -231,7 +232,7 @@ async function getIp() {
         ;
         user.fp = arr;
     });
-
+    console.log(await db.userfps.toArray());
     // db.close();
 };
 
