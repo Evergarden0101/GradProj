@@ -60,8 +60,6 @@ async function saveUser(change) {
         // console.log(del);
       })
       .then(function() {
-        ip = "127.0.0.9";
-        fingerprint = 2784975953;
         db.userfps
           .where({ ip: ip })
           .distinct()
