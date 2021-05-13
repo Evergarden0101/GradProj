@@ -1,6 +1,10 @@
 <template>
   <div id="app">
     <img src="./assets/logo.png" />
+    <button v-on:click="count()">请求</button>
+    <button v-on:click="count1()">请求1</button>
+    <button v-on:click="count2()">请求2</button>
+    <button v-on:click="count3()">请求3</button>
     <router-view />
   </div>
 </template>
@@ -18,9 +22,10 @@ export default {
   name: "App",
   mounted: function() {
     var usr = new changer([], [], [], {}, {}, {});
-    console.log(usr.add);
+    // console.log(usr.add);
     // usr.outputInfo();
     saveUser(usr).then(this.syncDB());
+
     // .then(change => {
     //   console.log(change.add.length);
     //   if (change.addfps) {
@@ -54,6 +59,50 @@ export default {
     // });
   },
   methods: {
+    count: function() {
+      this.$axios({
+        method: "get",
+        url: "/count",
+        params: {
+          //  arr: 123
+        }
+      }).then(res => {
+        console.log(res.data);
+      });
+    },
+    count1: function() {
+      this.$axios({
+        method: "get",
+        url: "/count",
+        params: {
+          //  arr: 123
+        }
+      }).then(res => {
+        console.log(res.data);
+      });
+    },
+    count2: function() {
+      this.$axios({
+        method: "get",
+        url: "/count",
+        params: {
+          //  arr: 123
+        }
+      }).then(res => {
+        console.log(res.data);
+      });
+    },
+    count3: function() {
+      this.$axios({
+        method: "get",
+        url: "/count",
+        params: {
+          //  arr: 123
+        }
+      }).then(res => {
+        console.log(res.data);
+      });
+    },
     syncDB: function() {
       var db = new Dexie("user");
       db.version(1).stores({
@@ -86,7 +135,7 @@ export default {
         });
       });
     }
-  },
+  }
 };
 </script>
 

@@ -91,23 +91,32 @@ async function saveUser(change) {
                     });
                   // console.log("add ip to fp");
                 } else if (findIp.length == 0 && findFp.length == 0) {
-                  db.userfps
-                    .add({
-                      ip: [ip],
-                      fp: [fingerprint]
-                    })
-                    .then(function() {
+                  db.userfps.count(count => {
+                    if (count == 0) {
                       db.userfps
-                        .where("fp")
-                        .equals(fingerprint)
-                        .distinct()
-                        .first(user => {
-                          change.add.push(user.id);
-                          change.addfps = user;
-                          // console.log(change.add[0])
+                        .add({
+                          ip: [ip],
+                          fp: [fingerprint]
+                        })
+                        .then(function() {
+                          db.userfps
+                            .where("fp")
+                            .equals(fingerprint)
+                            .distinct()
+                            .first(user => {
+                              change.add.push(user.id);
+                              change.addfps = user;
+                              // console.log(change.add[0])
+                            });
+                          // console.log("add user");
                         });
-                      // console.log("add user");
-                    });
+                    } else {
+                      db.userfps.toCollection().modify(user => {
+                        user.ip.push(ip);
+                        user.fp.push(fingerprint);
+                      });
+                    }
+                  });
                 } else if (findIp.length == 1 && findFp.length == 1) {
                   if (findIp[0].id != findFp[0].id) {
                     db.userfps.get({ fp: fingerprint }).then(fpp => {
@@ -130,6 +139,7 @@ async function saveUser(change) {
                     });
                   }
                 } else {
+                  /*
                   db.userfps
                     .add({
                       ip: [ip],
@@ -146,6 +156,8 @@ async function saveUser(change) {
                         });
                       // console.log("add user");
                     });
+                    */
+                  // combine undone
                 }
               });
           });
