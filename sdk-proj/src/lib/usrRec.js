@@ -48,6 +48,122 @@ async function saveUser(change) {
     let language = client.getLanguage();
 
     //indexedDB - dexie
+
+    db.userfps
+      .where({ fp: fingerprint })
+      .distinct()
+      .toArray(arr => {
+        if (arr.length === 0) {
+          db.userfps.add({
+            fp: fingerprint,
+            ip: [ip]
+          });
+        } else {
+          if (arr[0].fp !== fingerprint) {
+            db.userfps.clear().then(() => {
+              db.userfps.add({
+                fp: fingerprint,
+                ip: [ip]
+              });
+            });
+          } else {
+            for (var i = 0; i < arr[0].ip.length; i++) {
+              if (arr[0].ip[i] === ip) break;
+            }
+            if (i === arr[0].ip.length) {
+              db.userfps
+                .where({ fp: fingerprint })
+                .distinct()
+                .distinct()
+                .modify(user => {
+                  user.ip.push(ip);
+                });
+            }
+          }
+        }
+      })
+      .then(() => {
+        db.fingerprints
+          .where({ fp: fingerprint })
+          .distinct()
+          .toArray(arr => {
+            if (arr.length === 0) {
+              db.fingerprints.add({
+                fp: fingerprint,
+                userAgent: userAgent,
+                cpu: cpu,
+                screenPrint: screenPrint,
+                colorDepth: colorDepth,
+                availableResolution: availableResolution,
+                mimeTypes: mimeTypes,
+                fonts: fonts,
+                timeZone: timeZone,
+                language: language,
+                core: core,
+                screenOrientation,
+                screenAngle,
+                screenHeight,
+                screenWidth
+              });
+            }
+          });
+      })
+      .then(() => {
+        result(1001);
+      }); /*
+                  // combine undone
+                }
+              });
+          });
+      })
+      .then(function() {
+        db.fingerprints
+          .where({ fp: fingerprint })
+          .distinct()
+          .toArray(res => {
+            if (res.length == 0) {
+              db.fingerprints.add({
+                fp: fingerprint,
+                userAgent: userAgent,
+                cpu: cpu,
+                screenPrint: screenPrint,
+                colorDepth: colorDepth,
+                availableResolution: availableResolution,
+                mimeTypes: mimeTypes,
+                fonts: fonts,
+                timeZone: timeZone,
+                language: language,
+                core: core,
+                screenOrientation,
+                screenAngle,
+                screenHeight,
+                screenWidth
+              });
+            }
+          });
+      })
+      .then(rmDuplication())
+      .then(
+        //合并相同ip与fp
+        combineUser(change).then(res => {
+          console.log(res);
+          // let changer = JSON.parse(JSON.stringify(res));
+          // return changer;
+          var arr = new changer(
+            res.add,
+            res.update,
+            res.del,
+            res.addfps,
+            res.upfps,
+            res.delfps
+          );
+          console.log(arr);
+          result(arr);
+        })
+      );
+      */
+
+    /*
     combineUser(change)
       .then(res => {
         console.log(res.del);
@@ -157,56 +273,6 @@ async function saveUser(change) {
                       // console.log("add user");
                     });
                     */
-                  // combine undone
-                }
-              });
-          });
-      })
-      .then(function() {
-        db.fingerprints
-          .where({ fp: fingerprint })
-          .distinct()
-          .toArray(res => {
-            if (res.length == 0) {
-              db.fingerprints.add({
-                fp: fingerprint,
-                userAgent: userAgent,
-                cpu: cpu,
-                screenPrint: screenPrint,
-                colorDepth: colorDepth,
-                availableResolution: availableResolution,
-                mimeTypes: mimeTypes,
-                fonts: fonts,
-                timeZone: timeZone,
-                language: language,
-                core: core,
-                screenOrientation,
-                screenAngle,
-                screenHeight,
-                screenWidth
-              });
-            }
-          });
-      })
-      .then(rmDuplication())
-      .then(
-        //合并相同ip与fp
-        combineUser(change).then(res => {
-          console.log(res);
-          // let changer = JSON.parse(JSON.stringify(res));
-          // return changer;
-          var arr = new changer(
-            res.add,
-            res.update,
-            res.del,
-            res.addfps,
-            res.upfps,
-            res.delfps
-          );
-          console.log(arr);
-          result(arr);
-        })
-      );
   });
 
   //

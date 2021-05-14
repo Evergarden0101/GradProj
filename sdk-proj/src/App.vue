@@ -73,7 +73,7 @@ export default {
     count1: function() {
       this.$axios({
         method: "get",
-        url: "/count",
+        url: "/count1",
         params: {
           //  arr: 123
         }
@@ -84,7 +84,7 @@ export default {
     count2: function() {
       this.$axios({
         method: "get",
-        url: "/count",
+        url: "/count2",
         params: {
           //  arr: 123
         }
@@ -95,7 +95,7 @@ export default {
     count3: function() {
       this.$axios({
         method: "get",
-        url: "/count",
+        url: "/count3",
         params: {
           //  arr: 123
         }
@@ -114,7 +114,7 @@ export default {
         console.log(arr);
         this.$axios({
           method: "get",
-          url: "/sync",
+          url: "/syncufp",
           params: {
             arr: arr
           }

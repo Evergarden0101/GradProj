@@ -1,11 +1,13 @@
 var MongoClient = require("mongodb").MongoClient;
 
 class Mongo {
+  //构造器
   constructor(url, dbName, collectionName) {
     this.url = url;
     this.dbName = dbName;
     this.collectionName = collectionName;
   }
+  //连接数据库
   _connect() {
     return new Promise((res, rej) => {
       MongoClient.connect(
@@ -18,7 +20,7 @@ class Mongo {
       );
     });
   }
-
+  //插入操作
   insert(obj) {
     return new Promise((res, rej) => {
       this._connect().then((client) => {
@@ -41,7 +43,7 @@ class Mongo {
       });
     });
   }
-
+  //删除操作
   delete(obj) {
     return new Promise((res, rej) => {
       this._connect().then((client) => {
@@ -64,7 +66,7 @@ class Mongo {
       });
     });
   }
-
+  //更新操作，根据filter查找，updater为新数据
   update(filter, updater) {
     return new Promise((res, rej) => {
       this._connect().then((client) => {
@@ -79,7 +81,7 @@ class Mongo {
       });
     });
   }
-
+  //查找操作
   find(obj) {
     obj = obj || {};
     let arr = [];
@@ -99,6 +101,7 @@ class Mongo {
 
 module.exports = Mongo;
 
+// 操作示例
 // const mongo = new Mongo("mongodb://localhost:27017/", "user", "ipfps");
 // let obj = [{"id": 3, "ip": ["127.0.0.3"], "fp": [188316655]},{"id": 4, "ip": ["127.0.0.4"], "fp": [188316656]}];
 // mongo.insert(obj).then((res) => {

@@ -1,22 +1,58 @@
 <template>
   <div id="app">
     <img src="./assets/logo.png" />
+    <button v-on:click="count()">请求</button>
+    <button v-on:click="counta()">请求1</button>
+    <button v-on:click="countb()">请求2</button>
+    <button v-on:click="countc()">请求3</button>
     <router-view />
   </div>
 </template>
 
 <script>
-import {
-  saveUser,
-  changer
-} from "./lib/usrRec";
+import { saveUser } from "./lib/usrRec";
 export default {
   name: "App",
   mounted: function() {
-    var usr = new changer([], [], [], {}, {}, {});
-    saveUser(usr).then(this.syncDB());
+    saveUser().then(this.syncDB());
   },
   methods: {
+    count: function() {
+      this.$axios({
+        method: "get",
+        url: "/count",
+        params: {}
+      }).then(res => {
+        // console.log(res.data);
+      });
+    },
+    counta: function() {
+      this.$axios({
+        method: "get",
+        url: "/counta",
+        params: {}
+      }).then(res => {
+        // console.log(res.data);
+      });
+    },
+    countb: function() {
+      this.$axios({
+        method: "get",
+        url: "/countb",
+        params: {}
+      }).then(res => {
+        // console.log(res.data);
+      });
+    },
+    countc: function() {
+      this.$axios({
+        method: "get",
+        url: "/countc",
+        params: {}
+      }).then(res => {
+        // console.log(res.data);
+      });
+    },
     syncDB: function() {
       var db = new Dexie("user");
       db.version(1).stores({
@@ -47,7 +83,7 @@ export default {
         });
       });
     }
-  },
+  }
 };
 </script>
 

@@ -1,70 +1,72 @@
 const requestIp = require('request-ip');
 var urlMoudule = require("url");
 const Mongo = require("./mongo");
+//连接ip-接口-时间表
 const apis = new Mongo("mongodb://localhost:27017/", "user", "apis");
+//连接ip限制表
 const lims = new Mongo("mongodb://localhost:27017/", "user", "lims");
+//连接白名单表
 const whites = new Mongo("mongodb://localhost:27017/", "user", "whites");
 
 function checkLim(req) {
     return new Promise((res, rej) => {
+        //获取ip、请求的接口、时间
         const clientIp = requestIp.getClientIp(req);
         // const ip=req.ip;
-
         const urlObj = urlMoudule.parse(req.url);
         const pathname = urlObj.pathname;
         const reqTime = new Date();
         // const reqTime = new Date().format("yyyy-MM-dd hh:mm:ss");
-        // console.log("reqTime:" + reqTime);
 
         const filter = {api: pathname, ip: clientIp};
         apis.find(filter).then(arr => {
+            //记录请求的ip、接口与时间
             if (arr.length == 0) {
                 apis.insert({ip: clientIp, api: pathname, time: [reqTime], count: 1}).then(() => {
+                    //  第一次请求新接口，不受限返回0
                     res(0);
                 })
             } else if (arr.length == 1) {
-                //    0.判断是否已经被限制
-                //    1.根据count遍历time数组 undone已更新
-                //    2.新数组存下1min以内的time
-                //    3.更新count为新time.length
                 lims.find({ip: clientIp}).then(limit => {
-                    if ((limit.length > 0 && limit[0].time <= reqTime) || limit.length == 0) {
+                    //    判断是否已经被限制
+                    if (limit.length == 0 || (limit.length > 0 && limit[0].time <= reqTime)) {
+                        //  限制时间已过则删除
                         if (limit.length > 0) {
-                            // console.log("timelimit:" + limit[0].time);
                             lims.delete({ip: clientIp});
                         }
-                        //异步注意 undone
+
+                        //  更新time数组，存下1min以内的time undone更新论文
                         var tmp = [reqTime];
                         for (let i = 0; i < arr[0].count; i++) {
                             let last = arr[0].time[i];
+                            console.log(last)
                             let gap = reqTime.getTime() - last.getTime();
-                            // console.log("last:" + gap);
                             if (gap < 60000) {
                                 tmp.push(last);
+                            } else {
+                                // 新的time在小位,可直接跳出
+                                break;
                             }
                         }
-                        // console.log("newTime:" + tmp);
+
+                        //  更新count为新time.length
                         var count = tmp.length;
-                        // console.log("Count:" + count);
-                        //注意可能的异步问题 undone
+
                         apis.update(filter, {ip: clientIp, api: pathname, time: tmp, count: count}).then(() => {
-                            //    1.count>=10
-                            //    2.查white
-                            //    3.加限制
-                            console.log("Count:" + count);
                             if (count >= 10) {
+                                //  若超过每分钟10次，则查找白名单
                                 whites.find({ip: clientIp}).then(white => {
-                                    console.log("white:" + white);
                                     if (white.length == 0) {
+                                        //  若不在白名单则设置限制
                                         lims.insert({ip: clientIp, time: reqTime.getTime() + 60000});
-                                        // console.log("new limits");
                                     }
                                 })
                             }
-                            //异步注意 undone
+                            //  不被限制则返回0
                             res(0);
                         })
                     } else {
+                        // 仍被限制则返回剩余等待时间(ms)
                         res(limit[0].time - reqTime);
                     }
                 })
@@ -73,6 +75,7 @@ function checkLim(req) {
     });
 };
 
+// 日期格式化
 Date.prototype.format = function (fmt) {
     var o = {
         "M+": this.getMonth() + 1,                   //月份
@@ -100,13 +103,6 @@ Date.prototype.format = function (fmt) {
 }
 
 
-// res为受限剩余秒数，最大60s，0为不受限
+// res为受限剩余秒数，最大60000ms，0为不受限
 module.exports = checkLim;
-
-
-// // inside middleware handler
-// const ipMiddleware = function(req, res, next) {
-
-//     next();
-// };
 
