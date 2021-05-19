@@ -3,10 +3,12 @@ var urlMoudule = require("url");
 const Mongo = require("./mongo");
 //连接ip-接口-时间表
 const apis = new Mongo("mongodb://localhost:27017/", "user", "apis");
-//连接ip限制表
+//连接ip-限制表
 const lims = new Mongo("mongodb://localhost:27017/", "user", "lims");
 //连接白名单表
 const whites = new Mongo("mongodb://localhost:27017/", "user", "whites");
+//连接爬虫表
+const craws = new Mongo("mongodb://localhost:27017/", "user", "craws");
 
 function checkLim(req) {
     return new Promise((res, rej) => {
@@ -59,6 +61,17 @@ function checkLim(req) {
                                     if (white.length == 0) {
                                         //  若不在白名单则设置限制
                                         lims.insert({ip: clientIp, time: reqTime.getTime() + 60000});
+                                        craws.find({ip: clientIp}).then(craw => {
+                                            if (craw.length == 0) {
+                                                craws.insert({ip: clientIp, reason: ["highFreq"]});
+                                            } else {
+                                                let reason = craw[0].reason;
+                                                if (reason.indexOf("highFreq") === -1) {
+                                                    reason.push("highFreq");
+                                                    craws.update({ip: clientIp}, {ip: clientIp, reason: reason});
+                                                }
+                                            }
+                                        })
                                     }
                                 })
                             }
