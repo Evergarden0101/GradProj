@@ -41,7 +41,6 @@ function checkLim(req) {
                         var tmp = [reqTime];
                         for (let i = 0; i < arr[0].count; i++) {
                             let last = arr[0].time[i];
-                            console.log(last)
                             let gap = reqTime.getTime() - last.getTime();
                             if (gap < 60000) {
                                 tmp.push(last);

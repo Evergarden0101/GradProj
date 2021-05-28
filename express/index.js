@@ -1,4 +1,5 @@
 const express = require("express");
+var request = require('request');
 
 const app = express();
 const port = 3000;
@@ -23,12 +24,10 @@ app.get("/syncufp", (req, res) => {
         });
 
         for (let i = 0; i < arr.length; i++) {
-            console.log(arr[i]);
             ipfps.find({fp: arr[i].fp}).then(user => {
                 if (user.length === 0) {
                     ipfps.insert(arr[i])
                 } else {
-                    console.log(user[0]);
                     let ip = user[0].ip;
                     for (let j = 0; j < arr[i].ip.length; j++) {
                         if (user[0].ip.indexOf(arr[i].ip[j]) === -1) {
@@ -51,7 +50,6 @@ app.get("/syncfps", (req, res) => {
             arr.push(JSON.parse(item));
         });
         for (let i = 0; i < arr.length; i++) {
-            // console.log(arr[i]);
             fps.find({fp: arr[i].fp}).then(fp => {
                 if (fp.length === 0) {
                     fps.insert(arr[i]);
@@ -65,37 +63,55 @@ app.get("/syncfps", (req, res) => {
 // 爬虫识别、流量控制
 app.get("/count", (req, res) => {
     checkLim(req).then(lim => {
-        console.log(lim)
+        recCrawler(req);
+        res.send({lim: lim});
     });
-    recCrawler(req);
-    res.send("1001"); //1001代表成功
 });
 
 //用于模拟爬虫的循环借口
 app.get("/counta", (req, res) => {
     checkLim(req).then(lim => {
-        console.log(lim)
+        recCrawler(req);
+        res.send({lim: lim});
     });
-    recCrawler(req);
-    res.send("1001"); //1001代表成功
 });
 
 app.get("/countb", (req, res) => {
     checkLim(req).then(lim => {
-        console.log(lim)
+        recCrawler(req);
+        res.send({lim: lim});
     });
-    recCrawler(req);
-    res.send("1001"); //1001代表成功
 });
 
 app.get("/countc", (req, res) => {
     checkLim(req).then(lim => {
-        console.log(lim)
+        recCrawler(req);
+        res.send({lim: lim});
     });
-    recCrawler(req);
-    res.send("1001"); //1001代表成功
+});
+
+app.get("/gap", (req, res) => {
+    for (let i = 0; i < 9; i++) {
+        request('/count', function (error, response, body) {
+            sleep(200)
+        });
+        request('/counta', function (error, response, body) {
+            sleep(200)
+        });
+        request('/countb', function (error, response, body) {
+            sleep(200)
+        });
+        request('/countc', function (error, response, body) {
+            sleep(200)
+        });
+    }
 });
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
 });
+
+function sleep(time) {
+    return new Promise((resolve) => setTimeout(resolve, time));
+}
+
